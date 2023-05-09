@@ -1,8 +1,32 @@
 document.body.onload = init
-var filtres = new Set("Tous")
+
+function Work(imageUrl, title, category){
+	this.url = imageUrl
+	this.title = title
+	this.category = category
+}
+
+let filtres = new Set()
+let allWorks = []
 
 async function init() {
-	refresh("Init")
+	const btnTous = document.getElementsByName("btnTous").item(0)
+	btnTous.classList.add('active')
+
+	let response = await fetch("http://localhost:5678/api/works")
+	let data = await response.json()
+
+	data.forEach(item => {
+		allWorks.push(new Work(item.imageUrl, item.title, item.category.name))
+		filtres.add(item.category.name)
+	});
+
+	filtres.forEach(item => {
+		addFiltresCategory(item)
+	})
+
+	showGallery("Tous")
+
 }
 
 function refresh(category) {
@@ -18,7 +42,7 @@ function refresh(category) {
 
 //Change l'état du bonton actif sur la barre de filtres
 function changeActivebutton(newButton) {
-	let lastActiveButton = document.getElementsByClassName('active').item(0)
+	const lastActiveButton = document.getElementsByClassName('active').item(0)
 	const newActiveButton = document.getElementsByName(newButton).item(0)
 
 	if (newActiveButton != null) {
@@ -31,37 +55,21 @@ function changeActivebutton(newButton) {
 
 //Affiche les élements d'une certaines catégorie dans la gallery
 async function showGallery(category) {
-	var responseDB = await fetch("http://localhost:5678/api/works")
-	var data = responseDB.json()
-	var tab = await data
 
-	for (var i = 0; i < tab.length; i++) {
+	allWorks.forEach(item => {
 		//On test si on doit tous afficher ou bien que c'est une catégorie spécifique
-		if (category == "Tous" || category == "Init"){
-			addFigure(tab[i].imageUrl, tab[i].title, tab[i].category.name)
-			
-		} else if (tab[i].category.name == category){
-			addFigure(tab[i].imageUrl, tab[i].title, tab[i].category.name)
+		if (category == "Tous")
+		{
+			addFigure(item.url, item.title, item.category)
+
+		} else if (item.category == category)
+		{
+			addFigure(item.url, item.title, item.category)
 			
 		}
-	}
-		
+	});
 }
 
-//Fonction test, pour afficher les éléments sans la DataBase
-function initNoDatabase() {
-	addFigure("assets/images/abajour-tahina.png","Abajour Tahina")
-	addFigure("assets/images/appartement-paris-v.png","Appartement Paris V")
-	addFigure("assets/images/restaurant-sushisen-londres.png","Restaurant Sushisen - Londres")
-	addFigure("assets/images/la-balisiere.png","Villa “La Balisiere” - Port Louis")
-	addFigure("assets/images/structures-thermopolis.png","Structures Thermopolis")
-	addFigure("assets/images/appartement-paris-x.png","Appartement Paris X")
-	addFigure("assets/images/le-coteau-cassis.png","Pavillon “Le coteau” - Cassis")
-	addFigure("assets/images/villa-ferneze.png","Villa Ferneze - Isola d’Elba")
-	addFigure("assets/images/appartement-paris-xviii.png","Appartement Paris XVIII")
-	addFigure("assets/images/bar-lullaby-paris.png","Bar “Lullaby” - Paris")
-	addFigure("assets/images/hotel-first-arte-new-delhi.png","Hotel First Arte - New Delhi")
-}
 
 //Creer un element figure ainsi que son filtre, et les affichent 
 function addFigure(imgURL, imgTitle, category) {
@@ -81,10 +89,6 @@ function addFigure(imgURL, imgTitle, category) {
 	newFigure.appendChild(newTitle)
 
 	divGallery.appendChild(newFigure)
-	if(!filtres.has(category)){
-		filtres.add(category)
-		addFiltresCategory(category)
-	}
 }
 
 //Creer et affiche une bouton sur la barre de filtre
