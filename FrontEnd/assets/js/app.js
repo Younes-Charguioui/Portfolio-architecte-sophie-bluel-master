@@ -8,6 +8,15 @@ function Work(imageUrl, title, category){
 
 let filtres = new Set()
 let allWorks = []
+let modal = null
+let user = {
+	token: null
+}
+
+if (sessionStorage.getItem('token') != null) {
+	user.token = sessionStorage.getItem('token')
+	accessAdmin()
+}
 
 async function init() {
 	const btnTous = document.getElementsByName("btnTous").item(0)
@@ -106,3 +115,30 @@ function addFiltresCategory(category) {
 	elementList.appendChild(buttonElement)
 	filtresList.appendChild(elementList)
 }
+
+function accessAdmin() {
+	
+}
+
+function openModal(e) {
+	e.preventDefault()
+	modal = document.querySelector(e.target.getAttribute('href'))
+	modal.style.display = null
+	modal.removeAttribute('aria-hidden')
+	modal.setAttribute('aria-modal','true')
+	modal.addEventListener('click',closeModal)
+	document.getElementById('js-modal-close').addEventListener('click',closeModal)
+	modal.querySelector('.modal-content').addEventListener('click',(e) => e.stopPropagation())
+}
+
+function closeModal(e) {
+	if (modal === null) return
+	e.preventDefault()
+	modal.style.display = "none"
+	modal.setAttribute('aria-hidden','true')
+	modal.removeAttribute('aria-modal')
+	modal.removeEventListener('click',closeModal)
+	modal = null
+}
+
+document.getElementById("js-open-modal").addEventListener('click', openModal)

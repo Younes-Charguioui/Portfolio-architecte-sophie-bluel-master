@@ -8,16 +8,17 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Work+Sans&display=swap" rel="stylesheet">
 	<meta name="description" content="">
-	<link rel="stylesheet" href="./assets/style.css">
+	<link rel="stylesheet" href="./assets/css/style.css">
+	<script src="https://kit.fontawesome.com/ea7bb04bec.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <header>
 	<h1>Sophie Bluel <span>Architecte d'inteérieur</span></h1>
 	<nav>
 		<ul>
-			<li>projets</li>
+			<li class="active">projets</li>
 			<li>contact</li>
-			<li>login</li>
+			<a href="./login.html"><li>login</li></a>
 			<li><img src="./assets/icons/instagram.png" alt="Instagram"></li>
 		</ul>
 	</nav>
@@ -36,6 +37,53 @@
 	</section>
 	<section id="portfolio">
 		<h2>Mes Projets</h2>
+		<a id="js-open-modal" href="#modal"> ouvrir</a>
+		<aside id="modal" class="modal" aria-hidden="true" role="dialog" style="display: none;">
+			<div class="modal-content">
+				<div class="modal-close">
+					<button id="js-modal-close"><i class="fa-solid fa-x"></i></button>
+				</div>
+				<div class="modal-title">
+					<h1>Galerie photo</h1>
+				</div>
+				<div class="modal-cards">
+					<article class="card">
+						<img src="./assets/images/abajour-tahina.png" alt="img temporaire">
+						<span>éditer</span>
+						<div class="card-icon">
+							<i class="fa-solid fa-arrows-up-down-left-right"></i>
+						</div>
+						<div class="card-icon">
+							<i class="fa-solid fa-arrows-up-down-left-right"></i>
+						</div>
+					</article>
+					<article class="card">
+						<img src="./assets/images/abajour-tahina.png" alt="img temporaire">
+						<span>éditer</span>
+					</article>
+					<article class="card">
+						<img src="./assets/images/abajour-tahina.png" alt="img temporaire">
+						<span>éditer</span>
+					</article>
+					<article class="card">
+						<img src="./assets/images/abajour-tahina.png" alt="img temporaire">
+						<span>éditer</span>
+					</article>
+					<article class="card">
+						<img src="./assets/images/abajour-tahina.png" alt="img temporaire">
+						<span>éditer</span>
+					</article>
+					<article class="card">
+						<img src="./assets/images/abajour-tahina.png" alt="img temporaire">
+						<span>éditer</span>
+					</article>
+					<article class="card">
+						<img src="./assets/images/abajour-tahina.png" alt="img temporaire">
+						<span>éditer</span>
+					</article>
+				</div>
+			</div>
+		</aside>
 		<nav class="filtres">
 			<ul id="filtres">
 				<li><button onclick="refresh('Tous')" class="active" name="btnTous">Tous</button></li>
@@ -68,6 +116,6 @@
 </footer>
 </body>
 
-<script type="text/javascript" src="./assets/app.js"></script>
+<script type="text/javascript" src="./assets/js/app.js"></script>
 
 </html>
