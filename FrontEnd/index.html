@@ -26,7 +26,7 @@
 <main>
 	<section id="introduction">
 		<figure>
-			<img src="./assets/images/sophie-bluel.png" alt="">
+			<img src="./assets/images/sophie-bluel.png" alt="une photo portrait de Sophie Bruel">
 		</figure>
 		<article>
 			<h2>Designer d'espace</h2>
@@ -46,41 +46,48 @@
 				<div class="modal-title">
 					<h1>Galerie photo</h1>
 				</div>
-				<div class="modal-cards">
-					<article class="card">
-						<img src="./assets/images/abajour-tahina.png" alt="img temporaire">
-						<span>éditer</span>
-						<div class="card-icon">
-							<i class="fa-solid fa-arrows-up-down-left-right"></i>
-						</div>
-						<div class="card-icon">
-							<i class="fa-solid fa-arrows-up-down-left-right"></i>
-						</div>
-					</article>
-					<article class="card">
-						<img src="./assets/images/abajour-tahina.png" alt="img temporaire">
-						<span>éditer</span>
-					</article>
-					<article class="card">
-						<img src="./assets/images/abajour-tahina.png" alt="img temporaire">
-						<span>éditer</span>
-					</article>
-					<article class="card">
-						<img src="./assets/images/abajour-tahina.png" alt="img temporaire">
-						<span>éditer</span>
-					</article>
-					<article class="card">
-						<img src="./assets/images/abajour-tahina.png" alt="img temporaire">
-						<span>éditer</span>
-					</article>
-					<article class="card">
-						<img src="./assets/images/abajour-tahina.png" alt="img temporaire">
-						<span>éditer</span>
-					</article>
-					<article class="card">
-						<img src="./assets/images/abajour-tahina.png" alt="img temporaire">
-						<span>éditer</span>
-					</article>
+				<div id="modal-cards" class="modal-cards">
+				</div>
+				<div class="open-modal-adding">
+					<button id="js-open-modal-adding" href="#modal-adding">Ajouter une photo</button>
+				</div>
+				<div class="delete-galery">
+					<a href="#">Supprimer la galerie</a>
+				</div>
+			</div>
+		</aside>
+		<aside id="modal-adding" class="modal" aria-hidden="true" role="dialog" style="display: none;">
+			<div class="modal-content">
+				<div class="modal-buttons">
+					<div class="modal-return">
+						<button id="js-modal-return"><i class="fa-solid fa-arrow-left-long"></i></button>
+					</div>
+					<div class="modal-close">
+						<button id="js-modal-close"><i class="fa-solid fa-x"></i></button>
+					</div>
+				</div>
+				<div class="modal-title">
+					<h1>Ajout photo</h1>
+				</div>
+				<div class="modal-form">
+					<div class="modal-input-file" id="div-file">
+						<i class="fa-regular fa-image"></i>
+						<form>
+							<input type="file" id="file" name="file" accept="image/png, image/jpeg">
+							<label for="file">+ Ajouter photo</label>
+						</form>
+						<span>jpg, png : 4mo max</span>
+					</div>
+					<div class="form-text-select">
+						<label for="title">Titre</label>
+						<input type="text" name="title" id="title">
+						<label for="category">Categorie</label>
+						<select name="category" id="category">
+						</select>
+					</div>
+				</div>
+				<div class="modal-adding-submit">
+					<button>Valider</button>
 				</div>
 			</div>
 		</aside>

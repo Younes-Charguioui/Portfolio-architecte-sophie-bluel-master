@@ -152,6 +152,10 @@ li:hover {
 	box-sizing: border-box;
 }
 
+#modal-adding {
+	background: rgba(0, 0, 0, 0.0);
+}
+
 .modal h1,h2,h3,p {
 	font-family: 'Work Sans';
 	font-weight: 400;
@@ -192,12 +196,16 @@ li:hover {
 	max-width: 420px;
 	margin: auto;
 	flex-wrap: wrap;
+	padding-bottom: 47px;
+	margin-bottom: 38px;
+	border-bottom: 1px solid #B3B3B3;
 }
 
 .modal-cards article {
 	display: flex;
 	text-align: left;
 	flex-direction: column;
+	position: relative;
 	padding-right: 5px;
 	margin-bottom: 10px;
 }
@@ -212,9 +220,206 @@ li:hover {
 	padding-top: 5px;
 }
 
-.modal-cards .card-icon {
+.modal-cards .card-icon-group {
+	display: flex;
 	position: absolute;
-	justify-content: flex-end;
+	right: 0;
+	margin: 6px;
+}
+
+.modal-cards .card-icon {
+	background-color: black;
+	color: white;
+	font-size: 10px;
+	font-weight: 400;
+	padding: 3px;
+	margin: 0px 3px 0px 0px;
+	border-radius: 2px;
+}
+
+.modal-content .open-modal-adding {
+	display: flex;
+	justify-content: center;
+}
+
+.open-modal-adding button {
+	width: 237px;
+	height: 36px;
+	background: #1D6154;
+	border-radius: 60px;
+	font-family: 'Syne';
+	font-style: normal;
+	font-weight: 100;
+	font-size: 14px;
+	color: white;
+}
+
+.modal-input-file img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+.modal-content .delete-galery {
+	display: flex;
+	justify-content: center;
+	margin-top: 23px;
+}
+
+.delete-galery a {
+	text-align: center;
+	text-decoration: none;
+	font-family: 'Syne';
+	font-style: normal;
+	font-weight: 400;
+	font-size: 14px;
+	color: #D65353;
+}
+
+.modal-buttons #js-modal-return {
+	color: #3d3d3d;
+	background: transparent;
+	border: none;
+	height: fit-content;
+	font-size: 16px;
+}
+
+.modal-content .modal-buttons {
+	display: flex;
+	position: relative;
+}
+
+.modal-buttons .modal-return {
+	margin-top: 32px;
+	margin-left: 36px;
+}
+
+.modal-buttons .modal-close {
+	margin-top: 32px;
+	margin-right: 36px;
+	position: absolute;
+	right: 0;
+}
+
+.modal-content .modal-form {
+	max-width: 420px;
+	margin: 0px auto;
+	border-bottom: 1px solid #B3B3B3;;
+}
+
+.modal-form .modal-input-file {
+	display: flex;
+	position: relative;
+	flex-direction: column;
+	align-items: center;
+	height: 169px;
+	background: #E8F1F7;
+	border-radius: 3px;
+}
+
+.modal-input-file i {
+	position: relative;
+	margin-top: 26px;
+	margin-bottom: 24px;
+	font-size: 52px;
+}
+
+.modal-input-file input[type="file"] {
+	display: none;
+}
+.modal-input-file label {
+	color: #306685;
+	height: 60px;
+	font-family: 'Work Sans';
+	font-style: normal;
+	font-weight: 500;
+	font-size: 14px;
+	line-height: 16px;
+	text-align: center;
+	padding: 10px 33px;
+	background: #CBD6DC;
+	border-radius: 50px;
+}
+
+.modal-input-file span {
+	margin-top: 20px;
+	margin-bottom: 19px;
+	font-family: 'Work Sans';
+	font-style: normal;
+	font-weight: 400;
+	font-size: 10px;
+	line-height: 12px;
+
+	color: #444444;
+}
+
+.modal-form .form-text-select {
+	margin-top: 30px;
+	display: flex;
+	flex-direction: column;
+}
+
+.form-text-select label {
+	font-family: 'Work Sans';
+	font-style: normal;
+	font-weight: 500;
+	font-size: 14px;
+	line-height: 16px;
+
+	color: #3D3D3D;
+	margin-bottom: 10px;
+}
+
+.form-text-select input {
+	height: 51px;
+	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+	margin-bottom: 21px;
+	padding-left: 16px;
+	border: none;
+
+	font-family: 'Work Sans';
+	font-style: normal;
+	font-weight: 400;
+	font-size: 14px;
+	line-height: 16px;
+
+	color: #444444;
+}
+
+.form-text-select select {
+	height: 51px;
+	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+	margin-bottom: 47px;
+	border: none;
+	padding-left: 16px;
+	background: #fff;
+	font-family: 'Work Sans';
+	font-style: normal;
+	font-weight: 400;
+	font-size: 14px;
+	line-height: 16px;
+
+	color: #444444;
+}
+
+.modal-content .modal-adding-submit {
+	display: flex;
+	justify-content: center;
+	margin-top: 32px;
+}
+
+.modal-adding-submit button {
+	width: 237px;
+	height: 36px;
+	background: #1D6154;
+	border-radius: 60px;
+
+	font-family: 'Syne';
+	font-style: normal;
+	font-weight: 700;
+	font-size: 14px;
+	line-height: 17px;
+	color: white;
 }
 
 .filtres {
