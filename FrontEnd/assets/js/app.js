@@ -126,7 +126,13 @@ function addFiltresCategory(category) {
 }
 
 function accessAdmin() {
-	
+	const navbar = document.querySelector(".nav-publish")
+	const editIntroduction = document.querySelector(".edit-introduction")
+	const editPortfolio = document.querySelector(".edit-portfolio")
+
+	navbar.style.display = null
+	editIntroduction.style.display = null
+	editPortfolio.style.display = null
 }
 
 function openModal(e) {
