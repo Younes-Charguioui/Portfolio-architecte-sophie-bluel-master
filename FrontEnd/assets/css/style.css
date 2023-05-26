@@ -2,7 +2,6 @@
    v2.0 | 20110126
    License: none (public domain)
 */
-
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -49,11 +48,68 @@ table {
 }
 /** end reset css**/
 body {
-	max-width: 1140px;
-	margin:auto;
 	font-family: 'Work Sans' ;
 	font-size: 14px;
 }
+
+body .nav-publish {
+	position: relative;
+	height: 59px;
+	z-index: 100;
+
+	background-color: black;
+}
+
+.nav-publish .nav-publish-elements {
+	display: flex;
+	justify-content: center;
+	gap: 44px;
+}
+
+.nav-publish-elements .nav-publish-title {
+	display: flex;
+	gap: 10px;
+	margin: 20px 0px;
+}
+
+.nav-publish-title i {
+	color: white;
+	font-size: 19px;
+	line-height: 19px;
+}
+
+.nav-publish-title h1 {
+	font-family: 'Work Sans';
+	font-style: normal;
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 19px;
+	color: white;
+}
+
+.nav-publish-elements button {
+	border: none;
+	border-radius: 60px;
+	background: #FFFFFF;
+
+	font-family: 'Work Sans';
+	font-style: normal;
+	font-weight: 500;
+	font-size: 14px;
+	line-height: 16px;
+	text-align: center;
+
+	height: 38px;
+	margin: 11px 0px;
+	padding: 11px 23px;
+	color: #000000;
+}
+
+body .main-body {
+	max-width: 1140px;
+	margin:auto;
+}
+
 header {
 	display: flex;
 	justify-content: space-between;
@@ -90,7 +146,6 @@ nav ul {
 	display: flex;
 	align-items: center;
 	list-style-type: none;
-
 }
 nav li {
 	padding: 0 10px;
@@ -112,8 +167,34 @@ li:hover {
 
 #introduction {
 	display: flex;
+	flex-direction: column;
+}
+
+#introduction .introduction-block{
+	display: flex;
 	align-items: center;
 }
+
+#introduction .edit-introduction {
+	margin-top: 10px;
+	margin-left: 60px;
+}
+
+.edit-introduction i {
+	font-size: 19px;
+}
+
+.edit-introduction a {
+	text-decoration: none;
+	font-family: 'Work Sans';
+	font-style: normal;
+	font-weight: 400;
+	font-size: 14px;
+	line-height: 16px;
+
+	color: #000000;
+}
+
 #introduction figure {
 	flex: 1
 }
@@ -128,15 +209,51 @@ li:hover {
 }
 #introduction h2 {
 	margin-bottom: 1em;
+	font-family: 'Syne';
+	font-weight: 700;
+	font-size: 30px;
+	color: #1D6154
 }
 
 #introduction p {
 	margin-bottom: 0.5em;
 }
 
-#portfolio h2 {
-	text-align: center;
+#portfolio .title-portfolio {
+	display: flex;
+	justify-content: center;
+	gap: 31px;
+}
+
+.title-portfolio h2 {
 	margin-bottom: 1em;
+	font-family: 'Syne';
+	font-weight: 700;
+	font-size: 30px;
+	color: #1D6154;
+	margin-bottom: 1em;
+}
+
+.title-portfolio .edit-portfolio {
+	display: flex;
+	margin: 6px 0px;
+	gap: 8px;
+}
+
+.edit-portfolio i {
+	font-size: 19px;
+}
+
+.edit-portfolio a {
+	text-decoration: none;
+	font-family: 'Work Sans';
+	font-style: normal;
+	font-weight: 400;
+	font-size: 14px;
+	line-height: 16px;
+
+	color: #000000;
+	margin: 2px 0px;
 }
 
 .modal {
@@ -408,10 +525,11 @@ li:hover {
 	margin-top: 32px;
 }
 
-.modal-adding-submit button {
+.modal-adding-submit button:disabled {
 	width: 237px;
 	height: 36px;
-	background: #1D6154;
+	background: #A7A7A7;
+	border: none;
 	border-radius: 60px;
 
 	font-family: 'Syne';
@@ -421,6 +539,22 @@ li:hover {
 	line-height: 17px;
 	color: white;
 }
+
+.modal-adding-submit button {
+	background: #1D6154;
+	width: 237px;
+	height: 36px;
+	border: none;
+	border-radius: 60px;
+
+	font-family: 'Syne';
+	font-style: normal;
+	font-weight: 700;
+	font-size: 14px;
+	line-height: 17px;
+	color: white;
+}
+
 
 .filtres {
 	display: flex;

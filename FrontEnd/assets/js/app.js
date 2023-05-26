@@ -1,6 +1,7 @@
 document.body.onload = init
 
-function Work(imageUrl, title, category){
+function Work(id, imageUrl, title, category){
+	this.id = id
 	this.url = imageUrl
 	this.title = title
 	this.category = category
@@ -14,7 +15,10 @@ let user = {
 }
 let cibleModal = null
 let removedArticleId = []
-let formState = false
+let preValidForm = new Work(0,"","","")
+let preValidArray = []
+let maxList = 0
+let maxPreList = 0
 
 if (sessionStorage.getItem('token') != null) {
 	user.token = sessionStorage.getItem('token')
@@ -27,10 +31,12 @@ async function init() {
 
 	let response = await fetch("http://localhost:5678/api/works")
 	let data = await response.json()
+	maxList = data.length
 
 	data.forEach(item => {
-		allWorks.push(new Work(item.imageUrl, item.title, item.category.name))
+		allWorks.push(new Work(item.id,item.imageUrl, item.title, item.category.name))
 		filtres.add(item.category.name)
+		if (item.id > maxList) maxList = item.id
 	});
 
 	filtres.forEach(item => {
@@ -46,7 +52,7 @@ function refresh(category) {
 	document.getElementById('gallery').innerHTML = ""
 
 	//On change l'état du bouton actif sur la barre de filtres
-	changeActivebutton("btn"+category)
+	changeActivebutton(`btn${category}`)
 
 	//On affiche la gallery correspondante
 	showGallery(category)
@@ -112,7 +118,7 @@ function addFiltresCategory(category) {
 	const buttonText = document.createTextNode(category)
 
 	buttonElement.onclick = () => refresh(category)
-	buttonElement.name = "btn"+category
+	buttonElement.name = `btn${category}`
 
 	buttonElement.appendChild(buttonText)
 	elementList.appendChild(buttonElement)
@@ -136,15 +142,18 @@ function openModal(e) {
 		const div = document.getElementById("div-file")
 		div.innerHTML = ""
 		div.innerHTML = "<i class='fa-regular fa-image'></i><form><input type='file' id='file' name='file' accept='image/png, image/jpeg'><label for='file'>+ Ajouter photo</label></form><span>jpg, png : 4mo max</span>"
+		testValidForm()
 		const input = document.getElementById("file")
 		input.addEventListener("change",(e) => {
 			const div = document.getElementById("div-file")
 			div.innerHTML = ""
 			const img = document.createElement('img')
-			img.src = URL.createObjectURL(input.files[0])
+			preValidForm.url = URL.createObjectURL(input.files[0])
+			img.src = preValidForm.url
 			img.alt = "image utilisateur"
 
 			div.appendChild(img)
+			testValidForm()
 		}, false)
 		document.getElementById('title').value = ""
 		document.getElementById('category').value = ""
@@ -155,6 +164,9 @@ function openModal(e) {
 			option.text = item
 			document.getElementById('category').add(option)
 		})
+		document.getElementById('title').addEventListener("keyup", () => {testValidForm()})
+		document.getElementById('title').addEventListener("change", () => {testValidForm()})
+		document.getElementById('category').addEventListener("change", () => {testValidForm()})
 	}
 	modal.style.display = null
 	modal.querySelector('#js-modal-close').addEventListener('click',closeModal)
@@ -162,6 +174,7 @@ function openModal(e) {
 }
 
 function closeModal(e) {
+	console.log(e)
 	if (modal === null) return
 	e.preventDefault()
 	modal.style.display = "none"
@@ -177,6 +190,8 @@ function closeModal(e) {
 	}
 	modal = null
 	removedArticleId = []
+	preValidArray = []
+	maxPreList = 0
 }
 
 function returnModal(e) {
@@ -197,46 +212,54 @@ function elementModal() {
 	const div = document.getElementById('modal-cards')
 	div.innerHTML = ""
 
-	allWorks.forEach((item, id) => {
-		const article = document.createElement('article')
-		const img = document.createElement('img')
-		const span = document.createElement('span')
-		const divGroup = document.createElement('div')
-		const divIcon = document.createElement('div')
-		const trashIcon = document.createElement('i')
-
-		trashIcon.setAttribute('class','fa-regular fa-trash-can')
-		trashIcon.setAttribute('onclick',`deleteArticleModal(${id})`)
-		divIcon.setAttribute('class','card-icon')
-		divIcon.appendChild(trashIcon)
-		divGroup.setAttribute('class','card-icon-group')
-		if (id === 0) {
-			const divFirstIcon = document.createElement('div')
-			const firstIcon = document.createElement('i')
-			firstIcon.setAttribute('class','fa-solid fa-arrows-up-down-left-right')
-			divFirstIcon.setAttribute('class','card-icon')
-			divFirstIcon.appendChild(firstIcon)
-			divGroup.appendChild(divFirstIcon)
-		}
-		divGroup.appendChild(divIcon)
-		img.alt = "une réalisation de Sophie Bruel"
-		img.src = item.url
-		span.appendChild(document.createTextNode('éditer'))
-		article.setAttribute('class','card')
-
-		article.appendChild(img)
-		article.appendChild(span)
-		article.appendChild(divGroup)
-		article.setAttribute('id',`article${id}`)
-
-		article.setAttribute('draggable','true')
-		img.setAttribute('draggable','false')
-		span.setAttribute('draggable','false')
-		article.setAttribute('ondrop','drop(event)')
-		article.setAttribute('ondragover','dragover(event)')
-		article.setAttribute('ondragstart','drag(event)')
-		div.appendChild(article)
+	allWorks.forEach((item,id) => {
+		addElementModal(div, item)
 	})
+
+	preValidArray.forEach((item,id) => {
+		addElementModal(div, item)
+	})
+}
+
+function addElementModal(div, item) {
+	const article = document.createElement('article')
+	const img = document.createElement('img')
+	const span = document.createElement('span')
+	const divGroup = document.createElement('div')
+	const divIcon = document.createElement('div')
+	const trashIcon = document.createElement('i')
+
+	trashIcon.setAttribute('class','fa-regular fa-trash-can')
+	trashIcon.setAttribute('onclick',`deleteArticleModal(${item.id})`)
+	divIcon.setAttribute('class','card-icon')
+	divIcon.appendChild(trashIcon)
+	divGroup.setAttribute('class','card-icon-group')
+	if (item.id === 0) {
+		const divFirstIcon = document.createElement('div')
+		const firstIcon = document.createElement('i')
+		firstIcon.setAttribute('class','fa-solid fa-arrows-up-down-left-right')
+		divFirstIcon.setAttribute('class','card-icon')
+		divFirstIcon.appendChild(firstIcon)
+		divGroup.appendChild(divFirstIcon)
+	}
+	divGroup.appendChild(divIcon)
+	img.alt = "une réalisation de Sophie Bruel"
+	img.src = item.url
+	span.appendChild(document.createTextNode('éditer'))
+	article.setAttribute('class','card')
+
+	article.appendChild(img)
+	article.appendChild(span)
+	article.appendChild(divGroup)
+	article.setAttribute('id',`article${item.id}`)
+
+	article.setAttribute('draggable','true')
+	img.setAttribute('draggable','false')
+	span.setAttribute('draggable','false')
+	article.setAttribute('ondrop','drop(event)')
+	article.setAttribute('ondragover','dragover(event)')
+	article.setAttribute('ondragstart','drag(event)')
+	div.appendChild(article)
 }
 
 //des qu'un element bouge de son emplacement
@@ -278,33 +301,55 @@ function drop(event) {
 	cibleModal = null
 }
 
+function publishModification() {
+	removedArticleId.forEach((id) => {
+		deleteArticle(id)
+	})
+}
+
+async function deleteArticle(id){
+	if (id > maxList) return
+	
+	let response = await fetch(`http://localhost:5678/api/works/${id}`,{
+	method: 'DELETE',
+	headers: {
+		'Content-Type': 'application/json;charset=utf-8',
+		'Authorization': `Bearer ${sessionStorage.token}`
+	}
+	})
+	
+	console.log(response)
+	//let data = await response.json()
+
+}
+
 function deleteArticleModal(id) {
 	const article = document.getElementById(`article${id}`)
 	removedArticleId.push(id)
 	article.remove()
 }
 
-if (document.getElementById('title') != null && document.getElementById('category') != null) {
-	console.log('111111')
-	if (document.getElementById('file') != null) {
-		if (document.getElementById('file').files.length != 0) {
-			if (formState != true) {
-				console.log("ok many")
-				formState = true
+
+function testValidForm() {
+	document.getElementById('adding-submit').setAttribute('disabled','')
+	if (document.getElementById('title') != null && document.getElementById('category') != null) {
+		if (document.getElementById('file') == null) {
+			if (document.getElementById('title').value != "") {
+				document.getElementById('adding-submit').removeAttribute('disabled','')
 			}
 		}
 	}
 }
 
-
-
-/*function temp() {
-	let response = await fetch("/mail",{
-		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json;charset=utf-8',
-			'Authorization': 'Bearer ' + localStorage.getItem('token'),
-			'Authorization': `Bearer ${localStorage.getItem('token')}`
-		}
-	})
-}*/
+function validForm() {
+	const div = document.getElementById('modal-cards')
+	maxPreList++
+	preValidForm.id = maxList + maxPreList
+	preValidForm.title = document.getElementById('title').value
+	preValidForm.category = document.getElementById('category').value
+	preValidArray.push(preValidForm)
+	console.log(`L'id est ${preValidForm.id}`)
+	addElementModal(div,preValidForm)
+	preValidForm = new Work(0,"","","")
+	returnModal(new Event("click"))
+}
