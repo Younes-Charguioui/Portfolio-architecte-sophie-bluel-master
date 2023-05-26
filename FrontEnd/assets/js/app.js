@@ -16,15 +16,19 @@ let user = {
 let cibleModal = null
 let removedArticleId = []
 let preValidForm = new Work(0,"","","")
+let testFormData = new FormData()
 let preValidArray = []
+let validArray = []
 let maxList = 0
 let maxPreList = 0
 
+//On test si l'ont possède un token Admin
 if (sessionStorage.getItem('token') != null) {
 	user.token = sessionStorage.getItem('token')
 	accessAdmin()
 }
 
+//Initialisation du contenu dynamique
 async function init() {
 	const btnTous = document.getElementsByName("btnTous").item(0)
 	btnTous.classList.add('active')
@@ -44,9 +48,9 @@ async function init() {
 	})
 
 	showGallery("Tous")
-
 }
 
+//On affiche les éléments d'une certaine catégorie
 function refresh(category) {
 	//On remet la gallery vide pour afficher les bons élements
 	document.getElementById('gallery').innerHTML = ""
@@ -125,6 +129,7 @@ function addFiltresCategory(category) {
 	filtresList.appendChild(elementList)
 }
 
+//Permet l'affichage ou non de l'édition de la page
 function accessAdmin() {
 	const navbar = document.querySelector(".nav-publish")
 	const editIntroduction = document.querySelector(".edit-introduction")
@@ -135,6 +140,7 @@ function accessAdmin() {
 	editPortfolio.style.display = null
 }
 
+//Permet d'ouvrir l'un des deux modal
 function openModal(e) {
 	e.preventDefault()
 	modal = document.querySelector(e.target.getAttribute('href'))
@@ -149,12 +155,14 @@ function openModal(e) {
 		div.innerHTML = ""
 		div.innerHTML = "<i class='fa-regular fa-image'></i><form><input type='file' id='file' name='file' accept='image/png, image/jpeg'><label for='file'>+ Ajouter photo</label></form><span>jpg, png : 4mo max</span>"
 		testValidForm()
+		testFormData = new FormData()
 		const input = document.getElementById("file")
 		input.addEventListener("change",(e) => {
 			const div = document.getElementById("div-file")
 			div.innerHTML = ""
 			const img = document.createElement('img')
 			preValidForm.url = URL.createObjectURL(input.files[0])
+			testFormData.append("image",input.files[0])
 			img.src = preValidForm.url
 			img.alt = "image utilisateur"
 
@@ -179,6 +187,7 @@ function openModal(e) {
 	modal.querySelector('.modal-content').addEventListener('click',(e) => e.stopPropagation())
 }
 
+//Permet de fermer l'un ou les deux modal
 function closeModal(e) {
 	console.log(e)
 	if (modal === null) return
@@ -200,6 +209,7 @@ function closeModal(e) {
 	maxPreList = 0
 }
 
+//Permet de passer de la deuxième modal à la première
 function returnModal(e) {
 	if (modal === null) return
 	e.preventDefault()
@@ -214,6 +224,7 @@ document.getElementById("js-open-modal").addEventListener('click', openModal)
 document.getElementById("js-open-modal-adding").addEventListener('click', openModal)
 document.getElementById("js-modal-return").addEventListener('click', returnModal)
 
+//Construit les éléments de la modal
 function elementModal() {
 	const div = document.getElementById('modal-cards')
 	div.innerHTML = ""
@@ -227,6 +238,7 @@ function elementModal() {
 	})
 }
 
+//Créer un élément de la modal
 function addElementModal(div, item) {
 	const article = document.createElement('article')
 	const img = document.createElement('img')
@@ -268,7 +280,7 @@ function addElementModal(div, item) {
 	div.appendChild(article)
 }
 
-//des qu'un element bouge de son emplacement
+//Dès qu'un element bouge de son emplacement
 function dragover(event) {
 	event.preventDefault()
 	let target = event.target
@@ -282,12 +294,13 @@ function dragover(event) {
 	});
 }
 
-//dès qu'un element bouge de son emplacement
+//Dès qu'un element bouge de son emplacement
 function drag(event) {
 	event.dataTransfer.setData("text/html",event.target.outerHTML)
 	cibleModal = event.target
 }
 
+//Dès qu'un élément en drag est laché sur un surface valide
 function drop(event) {
 	event.preventDefault()
 	const data = event.dataTransfer.getData("text/html")
@@ -307,12 +320,59 @@ function drop(event) {
 	cibleModal = null
 }
 
+//Permet de supprimer ou d'ajouter les éléments nécéssaires
 function publishModification() {
 	removedArticleId.forEach((id) => {
 		deleteArticle(id)
 	})
+
+	preValidArray.forEach((item) => {
+		sendNewElement(item)
+	})
 }
 
+async function sendNewElement(item) {
+	let categoryId = 1
+	if (item.category == "Appartements") {
+		categoryId = 2
+	}
+	if (item.category == "Hotels & restaurants"){
+		categoryId = 3
+	} 
+
+	/*let work = {
+    	image: item.url,
+		title: item.title,
+		category: categoryId
+	}*/
+
+	testFormData.append("category",categoryId)
+
+	let formData = new FormData();
+	formData.append("image",item.url)
+	formData.append("title",item.title)
+	formData.append("category",categoryId)
+
+	/*let response = await fetch('http://localhost:5678/api/works', {
+		method: 'POST',
+		headers: {
+		'Content-Type': 'multipart/form-data',
+		'Authorization': `Bearer ${sessionStorage.token}`
+		},
+		//body: JSON.stringify(work)
+		body: testFormData
+	})
+
+	if (response.ok) { // code 200-299
+	}*/
+
+	let request = new XMLHttpRequest()
+	request.open("POST","http://localhost:5678/api/works")
+	request.setRequestHeader("Authorization",`Bearer ${sessionStorage.token}`)
+	request.send(testFormData)
+}
+
+//Supprime un élément de la base de données
 async function deleteArticle(id){
 	if (id > maxList) return
 	
@@ -323,19 +383,16 @@ async function deleteArticle(id){
 		'Authorization': `Bearer ${sessionStorage.token}`
 	}
 	})
-	
-	console.log(response)
-	//let data = await response.json()
-
 }
 
+//Supprime un élément de la modal
 function deleteArticleModal(id) {
 	const article = document.getElementById(`article${id}`)
 	removedArticleId.push(id)
 	article.remove()
 }
 
-
+//Test si le formulaire d'ajout d'un élément est conforme et ainsi change la couleur du bouton
 function testValidForm() {
 	document.getElementById('adding-submit').setAttribute('disabled','')
 	if (document.getElementById('title') != null && document.getElementById('category') != null) {
@@ -347,12 +404,14 @@ function testValidForm() {
 	}
 }
 
+//Création et ajout d'un nouvelle élément pour la modal
 function validForm() {
 	const div = document.getElementById('modal-cards')
 	maxPreList++
 	preValidForm.id = maxList + maxPreList
 	preValidForm.title = document.getElementById('title').value
 	preValidForm.category = document.getElementById('category').value
+	testFormData.append("title",document.getElementById('title').value)
 	preValidArray.push(preValidForm)
 	console.log(`L'id est ${preValidForm.id}`)
 	addElementModal(div,preValidForm)
