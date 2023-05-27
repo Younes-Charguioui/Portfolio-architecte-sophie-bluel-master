@@ -7,6 +7,14 @@ function Work(id, imageUrl, title, category){
 	this.category = category
 }
 
+function Form(id,file, title, categoryId, form){
+	this.id = id
+	this.file = file
+	this.title = title
+	this.categoryId = categoryId
+	this.form = form
+}
+
 let filtres = new Set()
 let allWorks = []
 let modal = null
@@ -15,12 +23,13 @@ let user = {
 }
 let cibleModal = null
 let removedArticleId = []
-let preValidForm = new Work(0,"","","")
-let testFormData = new FormData()
+let preValidForm = new Form(0,new Blob(),"",0, new FormData())
 let preValidArray = []
 let validArray = []
 let maxList = 0
 let maxPreList = 0
+
+let tmp = new FormData()
 
 //On test si l'ont possède un token Admin
 if (sessionStorage.getItem('token') != null) {
@@ -76,7 +85,7 @@ function changeActivebutton(newButton) {
 }
 
 //Affiche les élements d'une certaines catégorie dans la gallery
-async function showGallery(category) {
+function showGallery(category) {
 
 	allWorks.forEach(item => {
 		//On test si on doit tous afficher ou bien que c'est une catégorie spécifique
@@ -155,15 +164,15 @@ function openModal(e) {
 		div.innerHTML = ""
 		div.innerHTML = "<i class='fa-regular fa-image'></i><form><input type='file' id='file' name='file' accept='image/png, image/jpeg'><label for='file'>+ Ajouter photo</label></form><span>jpg, png : 4mo max</span>"
 		testValidForm()
-		testFormData = new FormData()
+		preValidForm = new Form(0,new Blob(),"",0, new FormData())
 		const input = document.getElementById("file")
 		input.addEventListener("change",(e) => {
 			const div = document.getElementById("div-file")
 			div.innerHTML = ""
 			const img = document.createElement('img')
-			preValidForm.url = URL.createObjectURL(input.files[0])
-			testFormData.append("image",input.files[0])
-			img.src = preValidForm.url
+			preValidForm.file = input.files[0]
+			preValidForm.form.append("image",input.files[0])
+			img.src = URL.createObjectURL(preValidForm.file)
 			img.alt = "image utilisateur"
 
 			div.appendChild(img)
@@ -189,7 +198,6 @@ function openModal(e) {
 
 //Permet de fermer l'un ou les deux modal
 function closeModal(e) {
-	console.log(e)
 	if (modal === null) return
 	e.preventDefault()
 	modal.style.display = "none"
@@ -230,16 +238,16 @@ function elementModal() {
 	div.innerHTML = ""
 
 	allWorks.forEach((item,id) => {
-		addElementModal(div, item)
+		addElementModal(div, item, id, "work")
 	})
 
 	preValidArray.forEach((item,id) => {
-		addElementModal(div, item)
+		addElementModal(div, item, allWorks.length+id, "form")
 	})
 }
 
 //Créer un élément de la modal
-function addElementModal(div, item) {
+function addElementModal(div, item, id, array) {
 	const article = document.createElement('article')
 	const img = document.createElement('img')
 	const span = document.createElement('span')
@@ -252,7 +260,7 @@ function addElementModal(div, item) {
 	divIcon.setAttribute('class','card-icon')
 	divIcon.appendChild(trashIcon)
 	divGroup.setAttribute('class','card-icon-group')
-	if (item.id === 0) {
+	if (id === 0) {
 		const divFirstIcon = document.createElement('div')
 		const firstIcon = document.createElement('i')
 		firstIcon.setAttribute('class','fa-solid fa-arrows-up-down-left-right')
@@ -262,7 +270,12 @@ function addElementModal(div, item) {
 	}
 	divGroup.appendChild(divIcon)
 	img.alt = "une réalisation de Sophie Bruel"
-	img.src = item.url
+	if (array == "work") {
+		img.src = item.url
+	} else {
+		img.src = URL.createObjectURL(item.file)
+	}
+	
 	span.appendChild(document.createTextNode('éditer'))
 	article.setAttribute('class','card')
 
@@ -329,52 +342,44 @@ function publishModification() {
 	preValidArray.forEach((item) => {
 		sendNewElement(item)
 	})
+	closeModal(new Event("click"))
+	removedArticleId = []
+	preValidArray = []
 }
 
 async function sendNewElement(item) {
-	let categoryId = 1
-	if (item.category == "Appartements") {
-		categoryId = 2
-	}
-	if (item.category == "Hotels & restaurants"){
-		categoryId = 3
-	} 
-
-	/*let work = {
-    	image: item.url,
-		title: item.title,
-		category: categoryId
-	}*/
-
-	testFormData.append("category",categoryId)
-
-	let formData = new FormData();
-	formData.append("image",item.url)
-	formData.append("title",item.title)
-	formData.append("category",categoryId)
+	
+	formData = new FormData()
+	formData.append("image", tmp)
+	formData.append("title", item.title)
+	formData.append("category", item.categoryId)
 
 	/*let response = await fetch('http://localhost:5678/api/works', {
 		method: 'POST',
 		headers: {
-		'Content-Type': 'multipart/form-data',
 		'Authorization': `Bearer ${sessionStorage.token}`
 		},
-		//body: JSON.stringify(work)
-		body: testFormData
-	})
-
-	if (response.ok) { // code 200-299
-	}*/
+		body: formData
+	})*/
 
 	let request = new XMLHttpRequest()
-	request.open("POST","http://localhost:5678/api/works")
-	request.setRequestHeader("Authorization",`Bearer ${sessionStorage.token}`)
-	request.send(testFormData)
+	request.open("POST", "http://localhost:5678/api/works")
+	request.setRequestHeader("Authorization", `Bearer ${sessionStorage.token}`)
+	request.send(item.form)
+
+	//console.log(response)
 }
 
 //Supprime un élément de la base de données
 async function deleteArticle(id){
-	if (id > maxList) return
+	if (id > maxList){
+		preValidArray.forEach((item, pos) => {
+			if (item.id == id) {
+				preValidArray = preValidArray.filter(item => item.id != id)
+			}
+		})
+		return
+	}
 	
 	let response = await fetch(`http://localhost:5678/api/works/${id}`,{
 	method: 'DELETE',
@@ -383,9 +388,10 @@ async function deleteArticle(id){
 		'Authorization': `Bearer ${sessionStorage.token}`
 	}
 	})
+	console.log("requete envoyé")
 }
 
-//Supprime un élément de la modal
+//Fait disparaitre un élément de la modal (encore dans les tableaux)
 function deleteArticleModal(id) {
 	const article = document.getElementById(`article${id}`)
 	removedArticleId.push(id)
@@ -410,11 +416,18 @@ function validForm() {
 	maxPreList++
 	preValidForm.id = maxList + maxPreList
 	preValidForm.title = document.getElementById('title').value
-	preValidForm.category = document.getElementById('category').value
-	testFormData.append("title",document.getElementById('title').value)
+	preValidForm.form.append("title",document.getElementById('title').value)
+	const tmpCategory = document.getElementById('category').value
+	let categoryId = 1
+	if (tmpCategory == "Appartements") {
+		categoryId = 2
+	}
+	if (tmpCategory == "Hotels & restaurants"){
+		categoryId = 3
+	}
+	preValidForm.form.append("category",categoryId)
+	//VERIFER QUE CETTE FRASE NE CASSE PAS TOUS preValidForm.title = categoryId
 	preValidArray.push(preValidForm)
-	console.log(`L'id est ${preValidForm.id}`)
-	addElementModal(div,preValidForm)
-	preValidForm = new Work(0,"","","")
+	elementModal()
 	returnModal(new Event("click"))
 }
