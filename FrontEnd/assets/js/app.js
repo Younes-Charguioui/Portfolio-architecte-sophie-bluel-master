@@ -7,12 +7,11 @@ function Work(id, imageUrl, title, category){
 	this.category = category
 }
 
-function Form(id,file, title, categoryId, form){
+function Form(id,file, title, categoryId){
 	this.id = id
 	this.file = file
 	this.title = title
 	this.categoryId = categoryId
-	this.form = form
 }
 
 let filtres = new Set()
@@ -23,13 +22,11 @@ let user = {
 }
 let cibleModal = null
 let removedArticleId = []
-let preValidForm = new Form(0,new Blob(),"",0, new FormData())
+let preValidForm = new Form(0,new Blob(),"",0)
 let preValidArray = []
 let validArray = []
 let maxList = 0
 let maxPreList = 0
-
-let tmp = new FormData()
 
 //On test si l'ont possède un token Admin
 if (sessionStorage.getItem('token') != null) {
@@ -44,7 +41,6 @@ async function init() {
 
 	let response = await fetch("http://localhost:5678/api/works")
 	let data = await response.json()
-	maxList = data.length
 
 	data.forEach(item => {
 		allWorks.push(new Work(item.id,item.imageUrl, item.title, item.category.name))
@@ -164,14 +160,13 @@ function openModal(e) {
 		div.innerHTML = ""
 		div.innerHTML = "<i class='fa-regular fa-image'></i><form><input type='file' id='file' name='file' accept='image/png, image/jpeg'><label for='file'>+ Ajouter photo</label></form><span>jpg, png : 4mo max</span>"
 		testValidForm()
-		preValidForm = new Form(0,new Blob(),"",0, new FormData())
+		preValidForm = new Form(0,new Blob(),"",0)
 		const input = document.getElementById("file")
 		input.addEventListener("change",(e) => {
 			const div = document.getElementById("div-file")
 			div.innerHTML = ""
 			const img = document.createElement('img')
 			preValidForm.file = input.files[0]
-			preValidForm.form.append("image",input.files[0])
 			img.src = URL.createObjectURL(preValidForm.file)
 			img.alt = "image utilisateur"
 
@@ -237,17 +232,17 @@ function elementModal() {
 	const div = document.getElementById('modal-cards')
 	div.innerHTML = ""
 
-	allWorks.forEach((item,id) => {
-		addElementModal(div, item, id, "work")
+	allWorks.forEach((item,pos) => {
+		addElementModal(div, item, pos, "work")
 	})
 
-	preValidArray.forEach((item,id) => {
-		addElementModal(div, item, allWorks.length+id, "form")
+	preValidArray.forEach((item,pos) => {
+		addElementModal(div, item, allWorks.length+pos, "form")
 	})
 }
 
 //Créer un élément de la modal
-function addElementModal(div, item, id, array) {
+function addElementModal(div, item, pos, array) {
 	const article = document.createElement('article')
 	const img = document.createElement('img')
 	const span = document.createElement('span')
@@ -260,7 +255,7 @@ function addElementModal(div, item, id, array) {
 	divIcon.setAttribute('class','card-icon')
 	divIcon.appendChild(trashIcon)
 	divGroup.setAttribute('class','card-icon-group')
-	if (id === 0) {
+	if (pos === 0) {
 		const divFirstIcon = document.createElement('div')
 		const firstIcon = document.createElement('i')
 		firstIcon.setAttribute('class','fa-solid fa-arrows-up-down-left-right')
@@ -334,61 +329,84 @@ function drop(event) {
 }
 
 //Permet de supprimer ou d'ajouter les éléments nécéssaires
-function publishModification() {
+async function publishModification() {
 	removedArticleId.forEach((id) => {
 		deleteArticle(id)
+		
 	})
 
+	console.log(`taille de zmaa${preValidArray.length}`)
+
+
 	preValidArray.forEach((item) => {
+		console.log(item)
 		sendNewElement(item)
+		allWorks.push(new Work(item.id,URL.createObjectURL(item.file),item.title,getCategoryName(item.categoryId)))
+		refresh("Tous")
 	})
 	closeModal(new Event("click"))
 	removedArticleId = []
 	preValidArray = []
+	//location.reload()
 }
 
 async function sendNewElement(item) {
-	
 	formData = new FormData()
-	formData.append("image", tmp)
+	formData.append("image", item.file)
 	formData.append("title", item.title)
 	formData.append("category", item.categoryId)
 
-	/*let response = await fetch('http://localhost:5678/api/works', {
+	const response = fetch('http://localhost:5678/api/works', {
 		method: 'POST',
 		headers: {
 		'Authorization': `Bearer ${sessionStorage.token}`
 		},
 		body: formData
-	})*/
+	})
 
-	let request = new XMLHttpRequest()
-	request.open("POST", "http://localhost:5678/api/works")
-	request.setRequestHeader("Authorization", `Bearer ${sessionStorage.token}`)
-	request.send(item.form)
+	response.then(reponse => {
+		console.log(`SEND Réponse reçue : ${reponse.status}`)
+		location.reload()
+		//refresh("Tous")
+	})
 
-	//console.log(response)
 }
 
 //Supprime un élément de la base de données
 async function deleteArticle(id){
+	console.log(`DELETE ${id}`)
+	console.log(`VALEUR MAXLIST ${maxList}`)
 	if (id > maxList){
+		console.log("A la base:")
+		console.log(preValidArray)
 		preValidArray.forEach((item, pos) => {
 			if (item.id == id) {
 				preValidArray = preValidArray.filter(item => item.id != id)
 			}
 		})
+		console.log("apres:")
+		console.log(preValidArray)
 		return
 	}
 	
-	let response = await fetch(`http://localhost:5678/api/works/${id}`,{
+	const response =  fetch(`http://localhost:5678/api/works/${id}`,{
 	method: 'DELETE',
 	headers: {
 		'Content-Type': 'application/json;charset=utf-8',
 		'Authorization': `Bearer ${sessionStorage.token}`
 	}
 	})
-	console.log("requete envoyé")
+	
+	response.then(reponse => {
+	  	console.log(`Réponse reçue : ${reponse.status}`)
+		allWorks.forEach((item, pos) => {
+			if (item.id == id) {
+				allWorks = allWorks.filter(item => item.id != id)
+			}
+		})
+		location.reload()
+		console.log("requete envoyé")
+	})
 }
 
 //Fait disparaitre un élément de la modal (encore dans les tableaux)
@@ -416,7 +434,6 @@ function validForm() {
 	maxPreList++
 	preValidForm.id = maxList + maxPreList
 	preValidForm.title = document.getElementById('title').value
-	preValidForm.form.append("title",document.getElementById('title').value)
 	const tmpCategory = document.getElementById('category').value
 	let categoryId = 1
 	if (tmpCategory == "Appartements") {
@@ -425,9 +442,19 @@ function validForm() {
 	if (tmpCategory == "Hotels & restaurants"){
 		categoryId = 3
 	}
-	preValidForm.form.append("category",categoryId)
-	//VERIFER QUE CETTE FRASE NE CASSE PAS TOUS preValidForm.title = categoryId
+	preValidForm.categoryId = categoryId
 	preValidArray.push(preValidForm)
 	elementModal()
 	returnModal(new Event("click"))
+	if (maxPreList < preValidForm.id) maxPreList = preValidForm.id
+}
+
+function getCategoryName(id){
+	if (id == 1) {
+		return "Objets"
+	} else if (id == 2) {
+		return "Appartements"
+	} else if (id == 3){
+		return "Hotels & restaurants"
+	}
 }
