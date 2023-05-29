@@ -39,8 +39,8 @@ async function init() {
 	const btnTous = document.getElementsByName("btnTous").item(0)
 	btnTous.classList.add('active')
 
-	let response = await fetch("http://localhost:5678/api/works")
-	let data = await response.json()
+	const response = await fetch("http://localhost:5678/api/works")
+	const data = await response.json()
 
 	data.forEach(item => {
 		allWorks.push(new Work(item.id,item.imageUrl, item.title, item.category.name))
@@ -280,7 +280,7 @@ function addElementModal(div, item, pos, array) {
 //Dès qu'un element bouge de son emplacement
 function dragover(event) {
 	event.preventDefault()
-	let target = event.target
+	const target = event.target
 	while (target.localName !== "article"){
 		target = target.parentNode
 	}
@@ -301,15 +301,15 @@ function drag(event) {
 function drop(event) {
 	event.preventDefault()
 	const data = event.dataTransfer.getData("text/html")
-	let target = event.target
+	const target = event.target
 	while (target.localName !== "article"){
 		target = target.parentNode
 	}
 
 	cibleModal.outerHTML = target.outerHTML
 	target.outerHTML = data
-	let tmp = document.getElementsByTagName("article")
-	for (let item of tmp){
+	const tmp = document.getElementsByTagName("article")
+	for (const item of tmp){
 		if (item.style.border != "") {
 			item.style.border = null
 		}
@@ -324,19 +324,17 @@ async function publishModification() {
 		
 	})
 
-	console.log(`taille de zmaa${preValidArray.length}`)
-
-
 	preValidArray.forEach((item) => {
-		console.log(item)
 		sendNewElement(item)
-		allWorks.push(new Work(item.id,URL.createObjectURL(item.file),item.title,getCategoryName(item.categoryId)))
-		showGallery("Tous")
+		const imgUrl = URL.createObjectURL(item.file)
+		const categoryName = getCategoryName(item.categoryId)
+		allWorks.push(new Work(item.id,imgUrl,item.title,categoryName))
+		addFigure(imgUrl, item.title, categoryName)
 	})
+
 	closeModal(new Event("click"))
 	removedArticleId = []
 	preValidArray = []
-	//location.reload()
 }
 
 async function sendNewElement(item) {
@@ -354,8 +352,7 @@ async function sendNewElement(item) {
 	})
 
 	response.then(reponse => {
-		console.log(`SEND Réponse reçue : ${reponse.status}`)
-		location.reload()
+		console.log(`SEND Réponse reçu : ${reponse.status}`)
 	})
 
 }
@@ -365,15 +362,11 @@ async function deleteArticle(id){
 	console.log(`DELETE ${id}`)
 	console.log(`VALEUR MAXLIST ${maxList}`)
 	if (id > maxList){
-		console.log("A la base:")
-		console.log(preValidArray)
 		preValidArray.forEach((item, pos) => {
 			if (item.id == id) {
 				preValidArray = preValidArray.filter(item => item.id != id)
 			}
 		})
-		console.log("apres:")
-		console.log(preValidArray)
 		return
 	}
 	
@@ -386,14 +379,13 @@ async function deleteArticle(id){
 	})
 	
 	response.then(reponse => {
-	  	console.log(`Réponse reçue : ${reponse.status}`)
+	  	console.log(`DELETE Réponse reçu : ${reponse.status}`)
 		allWorks.forEach((item, pos) => {
 			if (item.id == id) {
 				allWorks = allWorks.filter(item => item.id != id)
 			}
 		})
-		location.reload()
-		console.log("requete envoyé")
+		showGallery('Tous')
 	})
 }
 
@@ -422,19 +414,13 @@ function validForm() {
 	maxPreList++
 	preValidForm.id = maxList + maxPreList
 	preValidForm.title = document.getElementById('title').value
-	const tmpCategory = document.getElementById('category').value
-	let categoryId = 1
-	if (tmpCategory == "Appartements") {
-		categoryId = 2
-	}
-	if (tmpCategory == "Hotels & restaurants"){
-		categoryId = 3
-	}
-	preValidForm.categoryId = categoryId
+	preValidForm.categoryId = getCategoryId(document.getElementById('category').value)
 	preValidArray.push(preValidForm)
 	elementModal()
 	returnModal(new Event("click"))
-	if (maxPreList < preValidForm.id) maxPreList = preValidForm.id
+	if (maxPreList < preValidForm.id) {
+		maxPreList = preValidForm.id
+	}
 }
 
 function getCategoryName(id){
@@ -444,5 +430,15 @@ function getCategoryName(id){
 		return "Appartements"
 	} else if (id == 3){
 		return "Hotels & restaurants"
+	}
+}
+
+function getCategoryId(categoryName){
+	if (categoryName == "Objets") {
+		return 1
+	} else if (categoryName == "Appartements") {
+		return 2
+	} else if (categoryName == "Hotels & restaurants"){
+		return 3
 	}
 }
