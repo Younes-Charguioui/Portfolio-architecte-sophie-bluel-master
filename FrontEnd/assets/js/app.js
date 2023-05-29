@@ -55,33 +55,11 @@ async function init() {
 	showGallery("Tous")
 }
 
-//On affiche les éléments d'une certaine catégorie
-function refresh(category) {
-	//On remet la gallery vide pour afficher les bons élements
+//Affiche les élements d'une certaine catégorie dans la galerie
+function showGallery(category) {
 	document.getElementById('gallery').innerHTML = ""
 
-	//On change l'état du bouton actif sur la barre de filtres
 	changeActivebutton(`btn${category}`)
-
-	//On affiche la gallery correspondante
-	showGallery(category)
-}
-
-//Change l'état du bonton actif sur la barre de filtres
-function changeActivebutton(newButton) {
-	const lastActiveButton = document.getElementsByClassName('active').item(0)
-	const newActiveButton = document.getElementsByName(newButton).item(0)
-
-	if (newActiveButton != null) {
-		if (newActiveButton != lastActiveButton) {
-			newActiveButton.classList.add('active')
-			lastActiveButton.classList.remove('active')
-		}
-	}
-}
-
-//Affiche les élements d'une certaines catégorie dans la gallery
-function showGallery(category) {
 
 	allWorks.forEach(item => {
 		//On test si on doit tous afficher ou bien que c'est une catégorie spécifique
@@ -97,8 +75,20 @@ function showGallery(category) {
 	});
 }
 
+//Change l'état du bouton actif sur la barre de filtres
+function changeActivebutton(newButton) {
+	const lastActiveButton = document.getElementsByClassName('active').item(0)
+	const newActiveButton = document.getElementsByName(newButton).item(0)
 
-//Creer un element figure ainsi que son filtre, et les affichent 
+	if (newActiveButton != null) {
+		if (newActiveButton != lastActiveButton) {
+			newActiveButton.classList.add('active')
+			lastActiveButton.classList.remove('active')
+		}
+	}
+}
+
+//Créer un element figure (galerie d'acceuil) ainsi que son filtre, et les afficher 
 function addFigure(imgURL, imgTitle, category) {
 
 	const divGallery = document.getElementById('gallery')
@@ -118,7 +108,7 @@ function addFigure(imgURL, imgTitle, category) {
 	divGallery.appendChild(newFigure)
 }
 
-//Creer et affiche une bouton sur la barre de filtre
+//Créer et affiche un bouton de choix sur la barre de filtres
 function addFiltresCategory(category) {
 	const filtresList = document.getElementById('filtres')
 
@@ -126,7 +116,7 @@ function addFiltresCategory(category) {
 	const buttonElement = document.createElement('button')
 	const buttonText = document.createTextNode(category)
 
-	buttonElement.onclick = () => refresh(category)
+	buttonElement.onclick = () => showGallery(category)
 	buttonElement.name = `btn${category}`
 
 	buttonElement.appendChild(buttonText)
@@ -134,7 +124,7 @@ function addFiltresCategory(category) {
 	filtresList.appendChild(elementList)
 }
 
-//Permet l'affichage ou non de l'édition de la page
+//Permet l'affichage ou non de l'édition de la page pour les ADMINISTRATEURS
 function accessAdmin() {
 	const navbar = document.querySelector(".nav-publish")
 	const editIntroduction = document.querySelector(".edit-introduction")
@@ -145,7 +135,7 @@ function accessAdmin() {
 	editPortfolio.style.display = null
 }
 
-//Permet d'ouvrir l'un des deux modal
+//Permet d'ouvrir l'un des deux modals
 function openModal(e) {
 	e.preventDefault()
 	modal = document.querySelector(e.target.getAttribute('href'))
@@ -157,7 +147,6 @@ function openModal(e) {
 	}
 	if (modal.getAttribute('id') === 'modal-adding') {
 		const div = document.getElementById("div-file")
-		div.innerHTML = ""
 		div.innerHTML = "<i class='fa-regular fa-image'></i><form><input type='file' id='file' name='file' accept='image/png, image/jpeg'><label for='file'>+ Ajouter photo</label></form><span>jpg, png : 4mo max</span>"
 		testValidForm()
 		preValidForm = new Form(0,new Blob(),"",0)
@@ -342,7 +331,7 @@ async function publishModification() {
 		console.log(item)
 		sendNewElement(item)
 		allWorks.push(new Work(item.id,URL.createObjectURL(item.file),item.title,getCategoryName(item.categoryId)))
-		refresh("Tous")
+		showGallery("Tous")
 	})
 	closeModal(new Event("click"))
 	removedArticleId = []
@@ -367,7 +356,6 @@ async function sendNewElement(item) {
 	response.then(reponse => {
 		console.log(`SEND Réponse reçue : ${reponse.status}`)
 		location.reload()
-		//refresh("Tous")
 	})
 
 }
