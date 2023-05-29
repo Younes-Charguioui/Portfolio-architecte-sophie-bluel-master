@@ -280,12 +280,12 @@ function addElementModal(div, item, pos, array) {
 //Dès qu'un element bouge de son emplacement
 function dragover(event) {
 	event.preventDefault()
-	const target = event.target
+	let target = event.target
 	while (target.localName !== "article"){
 		target = target.parentNode
 	}
 	
-	target.style.border = "2px solid #000000"
+	target.style.border = "3px solid #000000"
 	target.addEventListener("dragleave", (event) => {
 	  target.style.border = null
 	});
@@ -301,13 +301,12 @@ function drag(event) {
 function drop(event) {
 	event.preventDefault()
 	const data = event.dataTransfer.getData("text/html")
-	const target = event.target
+	let target = event.target
 	while (target.localName !== "article"){
 		target = target.parentNode
 	}
-
-	cibleModal.outerHTML = target.outerHTML
-	target.outerHTML = data
+	cibleModal.outerHTML = ""
+	target.outerHTML = `${data}${target.outerHTML}`
 	const tmp = document.getElementsByTagName("article")
 	for (const item of tmp){
 		if (item.style.border != "") {
