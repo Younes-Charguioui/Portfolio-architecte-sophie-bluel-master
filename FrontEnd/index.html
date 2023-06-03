@@ -19,7 +19,7 @@
 				<i class="fa-regular fa-pen-to-square"></i>
 				<h2>Mode édition</h2>
 			</div>
-			<button id="btnPublish" onclick="publishModification()">publier les changements</button>
+			<button id="btnPublish">publier les changements</button>
 		</div>
 	</nav>
 	<div class="main-body">
@@ -109,13 +109,13 @@
 							</div>
 						</div>
 						<div class="modal-adding-submit">
-							<button id="adding-submit" onclick="validForm()" disabled>Valider</button>
+							<button id="adding-submit" disabled>Valider</button>
 						</div>
 					</div>
 				</aside>
 				<nav class="filtres">
 					<ul id="filtres">
-						<li><button onclick="showGallery('Tous')" class="active" name="btnTous">Tous</button></li>
+						<li><button id="btnTous" class="active" name="btnTous">Tous</button></li>
 					</ul>
 				</nav>
 				<div id="gallery" class="gallery">

@@ -216,6 +216,10 @@ document.getElementById("js-open-modal").addEventListener('click', openModal)
 document.getElementById("js-open-modal-adding").addEventListener('click', openModal)
 document.getElementById("js-modal-return").addEventListener('click', returnModal)
 
+document.getElementById("adding-submit").addEventListener('click', validForm)
+document.getElementById("btnTous").addEventListener('click', () => {showGallery('Tous')})
+document.getElementById("btnPublish").addEventListener('click', publishModification)
+
 //Construit les éléments de la modal
 function elementModal() {
 	const div = document.getElementById('modal-cards')
