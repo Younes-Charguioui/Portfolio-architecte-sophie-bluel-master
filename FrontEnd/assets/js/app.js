@@ -135,7 +135,7 @@ function accessAdmin() {
 	editPortfolio.style.display = null
 }
 
-//Permet d'ouvrir l'un des deux modals
+//Permet d'ouvrir l'une des deux modals
 function openModal(e) {
 	e.preventDefault()
 	modal = document.querySelector(e.target.getAttribute('href'))
@@ -180,10 +180,10 @@ function openModal(e) {
 	modal.querySelector('.modal-content').addEventListener('click',(e) => e.stopPropagation())
 }
 
-//Permet de fermer l'un ou les deux modal
-function closeModal(e) {
+//Permet de fermer l'une ou les deux modal
+function closeModal(e = null) {
 	if (modal === null) return
-	e.preventDefault()
+	if(e) e.preventDefault()
 	modal.style.display = "none"
 	modal.setAttribute('aria-hidden','true')
 	modal.removeAttribute('aria-modal')
@@ -202,9 +202,9 @@ function closeModal(e) {
 }
 
 //Permet de passer de la deuxième modal à la première
-function returnModal(e) {
+function returnModal(e = null) {
 	if (modal === null) return
-	e.preventDefault()
+	if(e) e.preventDefault()
 	modal.style.display = "none"
 	modal.setAttribute('aria-hidden','true')
 	modal.removeAttribute('aria-modal')
@@ -277,7 +277,7 @@ function addElementModal(div, item, pos, array) {
 	div.appendChild(article)
 }
 
-//Dès qu'un element bouge de son emplacement
+//Dès que l'ont accède à une surface valide
 function dragover(event) {
 	event.preventDefault()
 	let target = event.target
@@ -297,7 +297,7 @@ function drag(event) {
 	cibleModal = event.target
 }
 
-//Dès qu'un élément en drag est laché sur un surface valide
+//Dès qu'un élément en drag est laché sur une surface valide
 function drop(event) {
 	event.preventDefault()
 	const data = event.dataTransfer.getData("text/html")
@@ -306,7 +306,7 @@ function drop(event) {
 		target = target.parentNode
 	}
 	cibleModal.outerHTML = ""
-	target.outerHTML = `${data}${target.outerHTML}`
+	target.outerHTML = `${target.outerHTML}${data}`
 	const tmp = document.getElementsByTagName("article")
 	for (const item of tmp){
 		if (item.style.border != "") {
@@ -316,33 +316,29 @@ function drop(event) {
 	cibleModal = null
 }
 
-//Permet de supprimer ou d'ajouter les éléments nécéssaires
+//Permet de supprimer ou d'ajouter les éléments nécéssaires || appliquer les modifications
 async function publishModification() {
 	removedArticleId.forEach((id) => {
 		deleteArticle(id)
-		
 	})
 
 	preValidArray.forEach((item) => {
 		sendNewElement(item)
-		const imgUrl = URL.createObjectURL(item.file)
-		const categoryName = getCategoryName(item.categoryId)
-		allWorks.push(new Work(item.id,imgUrl,item.title,categoryName))
-		addFigure(imgUrl, item.title, categoryName)
 	})
 
-	closeModal(new Event("click"))
+	closeModal()
 	removedArticleId = []
 	preValidArray = []
 }
 
+//Envoie un élément sur la base de données et l'ajoute sur le site
 async function sendNewElement(item) {
 	formData = new FormData()
 	formData.append("image", item.file)
 	formData.append("title", item.title)
 	formData.append("category", item.categoryId)
 
-	const response = fetch('http://localhost:5678/api/works', {
+	let response = await fetch('http://localhost:5678/api/works', {
 		method: 'POST',
 		headers: {
 		'Authorization': `Bearer ${sessionStorage.token}`
@@ -350,26 +346,22 @@ async function sendNewElement(item) {
 		body: formData
 	})
 
-	response.then(reponse => {
-		console.log(`SEND Réponse reçu : ${reponse.status}`)
-	})
+	response = await response.json()
+
+	allWorks.push(new Work(response.id,response.imageUrl,response.title,getCategoryName(response.categoryId)))
+	addFigure(response.imageUrl, response.title, getCategoryName(response.categoryId))
+	maxList = response.id
 
 }
 
 //Supprime un élément de la base de données
 async function deleteArticle(id){
-	console.log(`DELETE ${id}`)
-	console.log(`VALEUR MAXLIST ${maxList}`)
 	if (id > maxList){
-		preValidArray.forEach((item, pos) => {
-			if (item.id == id) {
-				preValidArray = preValidArray.filter(item => item.id != id)
-			}
-		})
+		preValidArray = preValidArray.filter(item => item.id != id)
 		return
 	}
 	
-	const response =  fetch(`http://localhost:5678/api/works/${id}`,{
+	const response =  await fetch(`http://localhost:5678/api/works/${id}`,{
 	method: 'DELETE',
 	headers: {
 		'Content-Type': 'application/json;charset=utf-8',
@@ -377,15 +369,9 @@ async function deleteArticle(id){
 	}
 	})
 	
-	response.then(reponse => {
-	  	console.log(`DELETE Réponse reçu : ${reponse.status}`)
-		allWorks.forEach((item, pos) => {
-			if (item.id == id) {
-				allWorks = allWorks.filter(item => item.id != id)
-			}
-		})
-		showGallery('Tous')
-	})
+	allWorks = allWorks.filter(item => item.id != id)
+		
+	showGallery('Tous')
 }
 
 //Fait disparaitre un élément de la modal (encore dans les tableaux)
@@ -395,7 +381,7 @@ function deleteArticleModal(id) {
 	article.remove()
 }
 
-//Test si le formulaire d'ajout d'un élément est conforme et ainsi change la couleur du bouton
+//Test si le formulaire d'ajout d'un élément est conforme et ainsi change la couleur du bouton d'envoie
 function testValidForm() {
 	document.getElementById('adding-submit').setAttribute('disabled','')
 	if (document.getElementById('title') != null && document.getElementById('category') != null) {
@@ -416,12 +402,13 @@ function validForm() {
 	preValidForm.categoryId = getCategoryId(document.getElementById('category').value)
 	preValidArray.push(preValidForm)
 	elementModal()
-	returnModal(new Event("click"))
+	returnModal()
 	if (maxPreList < preValidForm.id) {
 		maxPreList = preValidForm.id
 	}
 }
 
+//Permet d'avoir le nom d'une catégorie avec son id
 function getCategoryName(id){
 	if (id == 1) {
 		return "Objets"
@@ -432,6 +419,7 @@ function getCategoryName(id){
 	}
 }
 
+//Permet d'avoir l'id' d'une catégorie avec son nom
 function getCategoryId(categoryName){
 	if (categoryName == "Objets") {
 		return 1
